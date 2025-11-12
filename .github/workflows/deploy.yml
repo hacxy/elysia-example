@@ -1,0 +1,214 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  NODE_ENV: production
+
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      # - name: Generate Prisma Client
+      #   run: bunx prisma generate
+      #   continue-on-error: true
+
+      - name: Build application for Linux
+        run: bun run build:linux
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-build
+          path: |
+            server
+            package.json
+          retention-days: 7
+
+  deploy:
+    name: Deploy to Server
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: server-build
+          path: ./artifacts
+
+      - name: Deploy application files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          # key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          source: "artifacts/*"
+          target: ${{ secrets.SERVER_DEPLOY_PATH }}
+
+      - name: Deploy systemd service file
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          # key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          source: "deploy/elysia-app.service"
+          target: /tmp/
+
+      - name: Execute deployment commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          # key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            set -e
+            DEPLOY_PATH="${{ secrets.SERVER_DEPLOY_PATH }}"
+            SERVICE_NAME="${{ secrets.SERVICE_NAME || 'elysia-app' }}"
+
+            echo "📦 开始部署到 $DEPLOY_PATH"
+            cd "$DEPLOY_PATH"
+
+            # 创建部署目录（如果不存在）
+            mkdir -p "$DEPLOY_PATH"
+            mkdir -p "$DEPLOY_PATH/backups"
+
+            # 备份旧版本
+            if [ -f server ]; then
+              BACKUP_DIR="backups/$(date +%Y%m%d_%H%M%S)"
+              mkdir -p "$BACKUP_DIR"
+              cp server "$BACKUP_DIR/" 2>/dev/null || true
+              echo "✅ 已备份旧版本到 $BACKUP_DIR"
+            fi
+
+            # 设置执行权限
+            chmod +x server || true
+
+            # 安装和配置 systemd 服务
+            echo "🔧 配置 systemd 服务..."
+            SERVICE_FILE="/tmp/elysia-app.service"
+
+            if [ -f "$SERVICE_FILE" ]; then
+              # 更新服务文件中的路径
+              sed -i "s|WorkingDirectory=.*|WorkingDirectory=$DEPLOY_PATH|g" "$SERVICE_FILE"
+              sed -i "s|ExecStart=.*|ExecStart=$DEPLOY_PATH/server|g" "$SERVICE_FILE"
+              
+              # 复制服务文件到 systemd 目录
+              sudo cp "$SERVICE_FILE" "/etc/systemd/system/${SERVICE_NAME}.service"
+              
+              # 重新加载 systemd
+              sudo systemctl daemon-reload
+              
+              # 启用服务（如果尚未启用）
+              sudo systemctl enable "${SERVICE_NAME}.service" || true
+              
+              echo "✅ 服务文件已安装"
+            else
+              echo "⚠️  服务文件不存在，将创建基本服务配置"
+              # 如果服务文件不存在，创建一个基本配置
+              cat <<EOF | sudo tee "/etc/systemd/system/${SERVICE_NAME}.service" > /dev/null
+            [Unit]
+            Description=Elysia App Server
+            After=network.target
+
+            [Service]
+            Type=simple
+            User=$USER
+            WorkingDirectory=$DEPLOY_PATH
+            ExecStart=$DEPLOY_PATH/server
+            Restart=always
+            RestartSec=10
+            StandardOutput=journal
+            StandardError=journal
+            SyslogIdentifier=${SERVICE_NAME}
+
+            Environment=NODE_ENV=production
+            Environment=PORT=1118
+
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+              sudo systemctl daemon-reload
+              sudo systemctl enable "${SERVICE_NAME}.service" || true
+            fi
+
+            # 检查服务是否存在
+            if sudo systemctl list-unit-files | grep -q "${SERVICE_NAME}.service"; then
+              echo "✅ 服务已配置"
+            else
+              echo "❌ 服务配置失败"
+              exit 1
+            fi
+
+            # 停止现有服务（如果正在运行）
+            echo "⏹️  停止现有服务..."
+            if sudo systemctl is-active --quiet "${SERVICE_NAME}.service" 2>/dev/null; then
+              sudo systemctl stop "${SERVICE_NAME}.service" || true
+            fi
+
+            # 运行 Prisma 迁移（如果需要）
+            if [ -d prisma ]; then
+              echo "🔄 运行数据库迁移..."
+              if command -v bun &> /dev/null; then
+                bunx prisma migrate deploy || echo "⚠️  迁移失败，继续部署..."
+              else
+                echo "⚠️  未安装 Bun，跳过数据库迁移"
+              fi
+            fi
+
+            # 启动服务
+            echo "▶️  启动服务..."
+            sudo systemctl start "${SERVICE_NAME}.service" || {
+              echo "❌ 服务启动失败"
+              sudo systemctl status "${SERVICE_NAME}.service" --no-pager -l || true
+              # 尝试回滚
+              if [ -d "$BACKUP_DIR" ] && [ -f "$BACKUP_DIR/server" ]; then
+                echo "🔄 尝试回滚到旧版本..."
+                cp "$BACKUP_DIR/server" server
+                sudo systemctl start "${SERVICE_NAME}.service" || true
+              fi
+              exit 1
+            }
+
+            # 等待服务启动
+            sleep 5
+
+            # 检查服务状态
+            if sudo systemctl is-active --quiet "${SERVICE_NAME}.service"; then
+              echo "✅ 部署成功！"
+              sudo systemctl status "${SERVICE_NAME}.service" --no-pager -l
+            else
+              echo "❌ 服务启动失败"
+              echo "📋 服务状态："
+              sudo systemctl status "${SERVICE_NAME}.service" --no-pager -l || true
+              echo "📋 最近日志："
+              sudo journalctl -u "${SERVICE_NAME}.service" -n 50 --no-pager || true
+              exit 1
+            fi
