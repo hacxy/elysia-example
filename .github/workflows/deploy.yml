@@ -69,17 +69,6 @@ jobs:
           source: "artifacts/*"
           target: ${{ secrets.SERVER_DEPLOY_PATH }}
 
-      - name: Deploy systemd service file
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          # key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          source: "deploy/elysia-app.service"
-          target: /tmp/
-
       - name: Execute deployment commands
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -89,16 +78,14 @@ jobs:
           # key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            set -e
-            DEPLOY_PATH="${{ secrets.SERVER_DEPLOY_PATH }}"
-            SERVICE_NAME="${{ secrets.SERVICE_NAME || 'elysia-app' }}"
+            SERVICE_NAME="${{ secrets.SERVICE_NAME || 'elysia-example' }}"
 
-            echo "📦 开始部署到 $DEPLOY_PATH"
-            cd "$DEPLOY_PATH"
+            echo "📦 开始部署到 ${{ secrets.SERVER_DEPLOY_PATH }}"
+            cd ${{ secrets.SERVER_DEPLOY_PATH }}
 
             # 创建部署目录（如果不存在）
-            mkdir -p "$DEPLOY_PATH"
-            mkdir -p "$DEPLOY_PATH/backups"
+            mkdir -p ${{ secrets.SERVER_DEPLOY_PATH }}
+            mkdir -p ${{ secrets.SERVER_DEPLOY_PATH }}/backups
 
             # 备份旧版本
             if [ -f server ]; then
@@ -109,63 +96,11 @@ jobs:
             fi
 
             # 设置执行权限
-            chmod +x server || true
+            chmod +x ${{ secrets.SERVER_DEPLOY_PATH }}/artifacts/server || true
 
-            # 安装和配置 systemd 服务
-            echo "🔧 配置 systemd 服务..."
-            SERVICE_FILE="/tmp/elysia-app.service"
+            sudo systemctl daemon-reload
+            sudo systemctl enable "${SERVICE_NAME}.service" || true
 
-            if [ -f "$SERVICE_FILE" ]; then
-              # 更新服务文件中的路径
-              sed -i "s|WorkingDirectory=.*|WorkingDirectory=$DEPLOY_PATH|g" "$SERVICE_FILE"
-              sed -i "s|ExecStart=.*|ExecStart=$DEPLOY_PATH/server|g" "$SERVICE_FILE"
-              
-              # 复制服务文件到 systemd 目录
-              sudo cp "$SERVICE_FILE" "/etc/systemd/system/${SERVICE_NAME}.service"
-              
-              # 重新加载 systemd
-              sudo systemctl daemon-reload
-              
-              # 启用服务（如果尚未启用）
-              sudo systemctl enable "${SERVICE_NAME}.service" || true
-              
-              echo "✅ 服务文件已安装"
-            else
-              echo "⚠️  服务文件不存在，将创建基本服务配置"
-              # 如果服务文件不存在，创建一个基本配置
-              cat <<EOF | sudo tee "/etc/systemd/system/${SERVICE_NAME}.service" > /dev/null
-            [Unit]
-            Description=Elysia App Server
-            After=network.target
-
-            [Service]
-            Type=simple
-            User=$USER
-            WorkingDirectory=$DEPLOY_PATH
-            ExecStart=$DEPLOY_PATH/server
-            Restart=always
-            RestartSec=10
-            StandardOutput=journal
-            StandardError=journal
-            SyslogIdentifier=${SERVICE_NAME}
-
-            Environment=NODE_ENV=production
-            Environment=PORT=1118
-
-            [Install]
-            WantedBy=multi-user.target
-            EOF
-              sudo systemctl daemon-reload
-              sudo systemctl enable "${SERVICE_NAME}.service" || true
-            fi
-
-            # 检查服务是否存在
-            if sudo systemctl list-unit-files | grep -q "${SERVICE_NAME}.service"; then
-              echo "✅ 服务已配置"
-            else
-              echo "❌ 服务配置失败"
-              exit 1
-            fi
 
             # 停止现有服务（如果正在运行）
             echo "⏹️  停止现有服务..."
