@@ -3,17 +3,23 @@ import user from "./modules/user";
 import { openapi } from "@elysiajs/openapi";
 import auth from "./modules/auth";
 
-export const app = new Elysia().use(
-  openapi({
-    documentation: {
-      info: {
-        title: "Elysia API",
-        version: "1.0.0",
-        description: "Elysia API",
+export const app = new Elysia()
+  .use(
+    openapi({
+      documentation: {
+        info: {
+          title: "Elysia API",
+          version: "1.0.0",
+          description: "Elysia API",
+        },
       },
-    },
-  })
-);
+    })
+  )
+  .get("/", () => {
+    return {
+      message: "Hello World",
+    };
+  });
 
 app.use(user).use(auth);
 app.listen(1118);
