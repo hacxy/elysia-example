@@ -8,9 +8,9 @@ export const response = {
       message,
     };
   },
-  error: (message: string) => {
+  error: (code: number = 500, message: string) => {
     return {
-      code: 500,
+      code,
       message,
     };
   },
@@ -22,10 +22,10 @@ export const responseSchema = <T extends TSchema>(schema: T) => {
       default: 200,
       description: "状态码",
     }),
-    data: schema,
+    data: t.Optional(schema),
     message: t.String({
       default: "success",
-      description: "响应消息",
+      description: "响应信息",
     }),
   });
 };
