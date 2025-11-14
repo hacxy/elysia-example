@@ -2,11 +2,16 @@ import { Elysia } from "elysia";
 import user from "./modules/user";
 import { openapi } from "@elysiajs/openapi";
 import auth from "./modules/auth";
-import { CommonError, ValidationError } from "./common/errors";
+import { CommonError } from "./common/errors";
 import { SUCCESS, VALIDATION } from "./constants/status-code";
 import { response } from "./utils/response";
+import { prismaError } from "prisma-better-errors";
+import { PrismaClientKnownRequestError } from "./generated/prisma/internal/prismaNamespace";
 
 export const app = new Elysia()
+  .error({
+    PrismaClientKnownRequestError,
+  })
   .onError(({ error, code, status }) => {
     if (code === "VALIDATION") {
       return status(SUCCESS, response.error(VALIDATION, error.message));

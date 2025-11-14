@@ -1,3 +1,4 @@
+import { prismaError } from "prisma-better-errors";
 import {
   ERROR,
   SUCCESS,
@@ -6,6 +7,7 @@ import {
   VALIDATION,
 } from "../constants/status-code";
 import { response } from "../utils/response";
+import { PrismaClientKnownRequestError } from "../generated/prisma/internal/prismaNamespace";
 
 export class CommonError extends Error {
   status: number = SUCCESS;
@@ -38,5 +40,12 @@ export class ForbiddenError extends CommonError {
 export class ValidationError extends CommonError {
   constructor(public message: string = "参数验证失败") {
     super(VALIDATION, message);
+  }
+}
+
+export class PrismaError extends CommonError {
+  constructor(public error: unknown) {
+    const pError = new prismaError(error as PrismaClientKnownRequestError);
+    super(pError.statusCode, pError.message);
   }
 }

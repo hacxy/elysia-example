@@ -1,7 +1,7 @@
 import { t } from "elysia";
 
 export namespace AuthModel {
-  export const signInBody = t.Object({
+  export const AccountBody = t.Object({
     username: t.String({
       minLength: 6,
       maxLength: 12,
@@ -22,6 +22,20 @@ export namespace AuthModel {
     token: t.String({
       description: "Token",
       example: "1234567890abcdefghijklmnopqrstuvwxyz",
+    }),
+  });
+  export const signUpResponse = t.Object({
+    id: t.Number({
+      description: "ID",
+      example: 1,
+    }),
+    username: t.String({
+      description: "用户名",
+      example: "admin",
+    }),
+    createdAt: t.String({
+      description: "创建时间",
+      example: "2021-01-01 00:00:00",
     }),
   });
 }
