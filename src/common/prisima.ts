@@ -3,6 +3,7 @@ import { PrismaError } from "@/common/errors";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 const adapter = new PrismaMariaDb({
+  connectionLimit: 10,
   host: process.env.DATABASE_HOST,
   port: parseInt(process.env.DATABASE_PORT || "3306"),
   user: process.env.DATABASE_USER,

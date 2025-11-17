@@ -45,7 +45,6 @@ export class ValidationError extends CommonError {
 
 export class PrismaError extends CommonError {
   constructor(public error: unknown) {
-    console.error(error);
     const pError = new prismaError(error as PrismaClientKnownRequestError);
     super(pError.statusCode, pError.message);
   }

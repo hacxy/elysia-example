@@ -5,10 +5,35 @@ import auth from "./modules/auth";
 import { CommonError } from "./common/errors";
 import { SUCCESS, VALIDATION } from "./constants/status-code";
 import { response } from "./utils/response";
-import { prismaError } from "prisma-better-errors";
 import { PrismaClientKnownRequestError } from "./generated/prisma/internal/prismaNamespace";
-
-export const app = new Elysia()
+import logixlysia from "logixlysia";
+export const app = new Elysia({ name: "elysia-example" })
+  .use(
+    logixlysia({
+      config: {
+        showStartupMessage: true,
+        startupMessageFormat: "simple",
+        timestamp: {
+          translateTime: "yyyy-mm-dd HH:MM:ss",
+        },
+        ip: true,
+        logFilePath: "./logs/elysia-example.log",
+        logRotation: {
+          maxSize: "10m",
+          interval: "1d",
+          maxFiles: "7d",
+          compress: true,
+        },
+        customLogFormat:
+          "🦊 {now} {level} {duration} {method} {pathname} {status} {message} {ip} {epoch}",
+        logFilter: {
+          level: ["ERROR", "WARNING"],
+          status: [500, 404],
+          method: "GET",
+        },
+      },
+    })
+  )
   .error({
     PrismaClientKnownRequestError,
   })
@@ -58,9 +83,3 @@ export const app = new Elysia()
 
 app.use(user).use(auth);
 app.listen(1118);
-
-if (process.env.NODE_ENV !== "production") {
-  console.log(
-    `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-  );
-}
