@@ -6,7 +6,7 @@ export const jwtPlugin = (app: Elysia) =>
   app.use(
     jwt({
       name: "jwt",
-      secret: Bun.env.JWT_SECRET!,
+      secret: process.env.JWT_SECRET!,
     })
   );
 

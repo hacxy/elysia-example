@@ -1,15 +1,32 @@
-# Elysia with Bun runtime
+# Elisya Example
 
-## Getting Started
-To get started with this template, simply paste this command into your terminal:
-```bash
-bun create elysia ./elysia-example
+## 安装 Bun
+
+```sh
+curl -fsSL https://bun.sh/install | bash
 ```
 
-## Development
-To start the development server run:
-```bash
+## 安装依赖
+
+```sh
+bun install
+```
+
+## 创建.env文件
+
+```
+DATABASE_URL='file:./dev.db'
+JWT_SECRET='elysia.example.secret'
+```
+
+## 生成Prisma客户端
+
+```sh
+bunx prisma generate
+```
+
+# 开发模式
+
+```sh
 bun run dev
 ```
-
-Open http://localhost:3000/ with your browser to see the result.
