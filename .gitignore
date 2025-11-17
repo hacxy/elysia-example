@@ -45,5 +45,4 @@ server
 dist
 logs/
 .env
-/src/generated/prisma
-/src/generated/prismabox
+/src/generated

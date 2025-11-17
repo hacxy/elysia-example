@@ -16,6 +16,7 @@
     "@prisma/adapter-mariadb": "^6.19.0",
     "@prisma/client": "^6.19.0",
     "elysia": "latest",
+    "elysia-ip": "^1.0.10",
     "logixlysia": "^5.3.0",
     "prisma-better-errors": "^1.0.4",
     "prismabox": "^1.1.25"

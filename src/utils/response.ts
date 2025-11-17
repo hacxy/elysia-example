@@ -2,7 +2,7 @@ import { t, TSchema } from "elysia";
 import { ERROR, SUCCESS } from "@/constants/status-code";
 
 export const response = {
-  success: <T>(message: string = "success", data?: T) => {
+  success: <T>(data?: T, message: string = "success") => {
     return {
       code: SUCCESS,
       data,

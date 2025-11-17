@@ -7,7 +7,11 @@ import { SUCCESS, VALIDATION } from "./constants/status-code";
 import { response } from "./utils/response";
 import { PrismaClientKnownRequestError } from "./generated/prisma/internal/prismaNamespace";
 import logixlysia from "logixlysia";
+import { ip } from "elysia-ip";
+import profile from "./modules/profile";
+
 export const app = new Elysia({ name: "elysia-example" })
+  .use(ip())
   .use(
     logixlysia({
       config: {
@@ -84,5 +88,5 @@ export const app = new Elysia({ name: "elysia-example" })
     }
   );
 
-app.use(user).use(auth);
+app.use(user).use(auth).use(profile);
 app.listen(1118);
