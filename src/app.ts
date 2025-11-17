@@ -6,7 +6,6 @@ import { CommonError } from "./common/errors";
 import { SUCCESS, VALIDATION } from "./constants/status-code";
 import { response } from "./utils/response";
 import { PrismaClientKnownRequestError } from "./generated/prisma/internal/prismaNamespace";
-import path from "node:path";
 import logixlysia from "logixlysia";
 export const app = new Elysia({ name: "elysia-example" })
   .use(
