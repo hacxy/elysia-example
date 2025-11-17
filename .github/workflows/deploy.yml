@@ -32,14 +32,11 @@ jobs:
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           cat .env
 
-      # - name: Generate Prisma Client
-      #   run: bunx prisma generate
-      #   continue-on-error: true
-
       - name: Build application for Linux
         run: |
           bun run prisma:generate &&
           bun run build:linux
+          bunx prisma migrate deploy
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -85,7 +82,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          # key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
             SERVICE_NAME="${{ secrets.SERVICE_NAME || 'elysia-example' }}"
