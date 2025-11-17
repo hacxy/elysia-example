@@ -8,7 +8,16 @@
     "build:linux": "NODE_ENV=production bun build --compile --minify-whitespace --minify-syntax --target bun-linux-x64 --outfile server ./src/index.ts",
     "build:linux-arm64": "NODE_ENV=production bun build --compile --minify-whitespace --minify-syntax --target bun-linux-arm64 --outfile server ./src/index.ts",
     "prisma:generate": "bunx prisma generate",
-    "prisma:push": "bunx prisma db push"
+    "prisma:push": "bunx prisma db push",
+    "prisma:seed": "bun run prisma/seed.ts",
+    "prisma:seed:prod": "SEED_CONFIRM=true NODE_ENV=production bun run prisma/seed.production.ts",
+    "prisma:create-admin": "bun run prisma/scripts/create-admin.ts",
+    "prisma:migrate": "bunx prisma migrate dev",
+    "prisma:migrate:prod": "bunx prisma migrate deploy",
+    "prisma:reset": "bunx prisma migrate reset"
+  },
+  "prisma": {
+    "seed": "bun run prisma/seed.ts"
   },
   "dependencies": {
     "@elysiajs/jwt": "^1.4.0",
