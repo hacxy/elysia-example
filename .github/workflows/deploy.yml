@@ -29,7 +29,7 @@ jobs:
       - name: Generate .env file
         run: |
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           cat .env
 
       # - name: Generate Prisma Client
@@ -131,7 +131,7 @@ jobs:
             # 检查并创建 .env 文件（如果不存在）
             if [ ! -f "artifacts/.env" ]; then
               echo "📝 服务器上不存在 .env 文件，正在创建..."
-              printf "DATABASE_URL=%s\nSECRET_KEY=%s\n" "${{ secrets.DATABASE_URL }}" "${{ secrets.SECRET_KEY }}" > artifacts/.env
+              printf "DATABASE_URL=%s\nSECRET_KEY=%s\n" "${{ secrets.DATABASE_URL }}" "${{ secrets.JWT_SECRET }}" > artifacts/.env
               chmod 600 .env
               echo "✅ 已创建 .env 文件"
             else
