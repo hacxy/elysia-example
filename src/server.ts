@@ -18,7 +18,10 @@ export const app = new Elysia({ name: "elysia-example" })
           translateTime: "yyyy-mm-dd HH:MM:ss",
         },
         ip: true,
-        logFilePath: path.join(process.cwd(), "logs", "elysia-example.log"),
+        logFilePath:
+          process.env.NODE_ENV === "production"
+            ? "/var/log/elysia-example/elysia-example.log"
+            : "./logs/elysia-example.log",
         logRotation: {
           maxSize: "10m",
           interval: "1d",
