@@ -44,9 +44,6 @@ jobs:
           name: server-build
           path: |
             server
-            .env
-            package.json
-            prisma
           retention-days: 7
 
   deploy:
@@ -73,7 +70,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           # key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
-          source: "artifacts/server,artifacts/package.json,artifacts/prisma"
+          source: "artifacts/*"
           target: ${{ secrets.SERVER_DEPLOY_PATH }}
 
       - name: Execute deployment commands
