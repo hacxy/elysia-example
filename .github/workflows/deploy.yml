@@ -129,16 +129,9 @@ jobs:
             fi
 
             # 检查并创建 .env 文件（如果不存在）
-            cd ${{ secrets.SERVER_DEPLOY_PATH }}/artifacts 
             if [ ! -f ".env" ]; then
               echo "📝 服务器上不存在 .env 文件，正在创建..."
-              cat > .env << EOF
-              DATABASE_URL=${{ secrets.DATABASE_URL }}
-              SECRET_KEY=${{ secrets.SECRET_KEY }}
-              EOF
-              # 替换变量值
-              sed -i "s|\${{ secrets.DATABASE_URL }}|${{ secrets.DATABASE_URL }}|g" .env
-              sed -i "s|\${{ secrets.SECRET_KEY }}|${{ secrets.SECRET_KEY }}|g" .env
+              printf "DATABASE_URL=%s\nSECRET_KEY=%s\n" "${{ secrets.DATABASE_URL }}" "${{ secrets.SECRET_KEY }}" > .env
               chmod 600 .env
               echo "✅ 已创建 .env 文件"
             else
