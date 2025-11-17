@@ -129,9 +129,9 @@ jobs:
             fi
 
             # 检查并创建 .env 文件（如果不存在）
-            if [ ! -f ".env" ]; then
+            if [ ! -f "artifacts/.env" ]; then
               echo "📝 服务器上不存在 .env 文件，正在创建..."
-              printf "DATABASE_URL=%s\nSECRET_KEY=%s\n" "${{ secrets.DATABASE_URL }}" "${{ secrets.SECRET_KEY }}" > .env
+              printf "DATABASE_URL=%s\nSECRET_KEY=%s\n" "${{ secrets.DATABASE_URL }}" "${{ secrets.SECRET_KEY }}" > artifacts/.env
               chmod 600 .env
               echo "✅ 已创建 .env 文件"
             else
