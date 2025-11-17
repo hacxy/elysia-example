@@ -6,6 +6,7 @@ import { CommonError } from "./common/errors";
 import { SUCCESS, VALIDATION } from "./constants/status-code";
 import { response } from "./utils/response";
 import { PrismaClientKnownRequestError } from "./generated/prisma/internal/prismaNamespace";
+import path from "node:path";
 import logixlysia from "logixlysia";
 export const app = new Elysia({ name: "elysia-example" })
   .use(
@@ -17,7 +18,7 @@ export const app = new Elysia({ name: "elysia-example" })
           translateTime: "yyyy-mm-dd HH:MM:ss",
         },
         ip: true,
-        logFilePath: "./logs/elysia-example.log",
+        logFilePath: path.join(process.cwd(), "logs", "elysia-example.log"),
         logRotation: {
           maxSize: "10m",
           interval: "1d",
