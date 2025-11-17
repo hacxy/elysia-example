@@ -26,12 +26,19 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Generate .env file
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          cat .env
+
       # - name: Generate Prisma Client
       #   run: bunx prisma generate
       #   continue-on-error: true
 
       - name: Build application for Linux
-        run: bun run prisma:generate
+        run: |
+          bun run prisma:generate &&
           bun run build:linux
 
       - name: Upload build artifacts
@@ -40,6 +47,7 @@ jobs:
           name: server-build
           path: |
             server
+            .env
             package.json
           retention-days: 7
 
