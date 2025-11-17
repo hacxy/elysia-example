@@ -128,16 +128,6 @@ jobs:
               fi
             fi
 
-            # 检查并创建 .env 文件（如果不存在）
-            if [ ! -f "artifacts/.env" ]; then
-              echo "📝 服务器上不存在 .env 文件，正在创建..."
-              printf "DATABASE_URL=%s\JWT_SECRET=%s\n" "${{ secrets.DATABASE_URL }}" "${{ secrets.JWT_SECRET }}" > artifacts/.env
-              chmod 600 .env
-              echo "✅ 已创建 .env 文件"
-            else
-              echo "✅ 服务器上已存在 .env 文件，跳过创建"
-            fi
-
             # 启动服务
             echo "▶️  启动服务..."
             sudo systemctl start "${SERVICE_NAME}.service" || {
