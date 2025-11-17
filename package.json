@@ -13,6 +13,7 @@
   "dependencies": {
     "@elysiajs/jwt": "^1.4.0",
     "@elysiajs/openapi": "^1.4.11",
+    "@prisma/adapter-better-sqlite3": "^6.19.0",
     "@prisma/client": "^6.19.0",
     "elysia": "latest",
     "prisma-better-errors": "^1.0.4",
