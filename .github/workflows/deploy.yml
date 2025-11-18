@@ -31,12 +31,12 @@ jobs:
           bun run prisma:generate &&
           bun run build:linux
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.CI_DATABASE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
       - name: Run Prisma migrations
         run: bunx prisma migrate deploy
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.CI_DATABASE_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

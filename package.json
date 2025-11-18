@@ -10,14 +10,9 @@
     "prisma:generate": "bunx prisma generate",
     "prisma:push": "bunx prisma db push",
     "prisma:seed": "bun run prisma/seed.ts",
-    "prisma:seed:prod": "SEED_CONFIRM=true NODE_ENV=production bun run prisma/seed.production.ts",
-    "prisma:create-admin": "bun run prisma/scripts/create-admin.ts",
     "prisma:migrate": "bunx prisma migrate dev",
     "prisma:migrate:prod": "bunx prisma migrate deploy",
     "prisma:reset": "bunx prisma migrate reset"
-  },
-  "prisma": {
-    "seed": "bun run prisma/seed.ts"
   },
   "dependencies": {
     "@elysiajs/jwt": "^1.4.0",

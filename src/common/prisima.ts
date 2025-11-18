@@ -1,16 +1,8 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaError } from "@/common/errors";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import mariadbAdapter from "../../prisma/adapter";
 
-const adapter = new PrismaMariaDb({
-  connectionLimit: 10,
-  host: process.env.DATABASE_HOST,
-  port: parseInt(process.env.DATABASE_PORT || "3306"),
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
-});
-const basePrisma = new PrismaClient({ adapter });
+const basePrisma = new PrismaClient({ adapter: mariadbAdapter });
 
 export const prisma = basePrisma.$extends({
   query: {

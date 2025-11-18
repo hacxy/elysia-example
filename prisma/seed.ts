@@ -1,18 +1,9 @@
 import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { hashPassword } from "../src/utils/password.js";
+import mariadbAdapter from "./adapter";
 
 // 创建 MariaDB 适配器用于种子脚本
-const adapter = new PrismaMariaDb({
-  connectionLimit: 10,
-  host: process.env.DATABASE_HOST || "localhost",
-  port: parseInt(process.env.DATABASE_PORT || "3306"),
-  user: process.env.DATABASE_USER || "root",
-  password: process.env.DATABASE_PASSWORD || "",
-  database: process.env.DATABASE_NAME || "elysia_app",
-});
-
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({ adapter: mariadbAdapter });
 
 /**
  * 种子数据脚本
@@ -50,10 +41,10 @@ async function main() {
   // 创建管理员用户
   const adminPassword = await hashPassword("admin123");
   const adminUser = await prisma.user.upsert({
-    where: { username: "admin" },
+    where: { username: "admin123" },
     update: {},
     create: {
-      username: "admin",
+      username: "admin123",
       password: adminPassword,
       userRole: {
         create: {
@@ -76,10 +67,10 @@ async function main() {
   // 创建普通用户
   const userPassword = await hashPassword("user123");
   const normalUser = await prisma.user.upsert({
-    where: { username: "user" },
+    where: { username: "user123" },
     update: {},
     create: {
-      username: "user",
+      username: "user123",
       password: userPassword,
       userRole: {
         create: {
@@ -102,10 +93,10 @@ async function main() {
   // 创建测试用户
   const testPassword = await hashPassword("test123");
   const testUser = await prisma.user.upsert({
-    where: { username: "test" },
+    where: { username: "test123" },
     update: {},
     create: {
-      username: "test",
+      username: "test123",
       password: testPassword,
       userRole: {
         create: {
@@ -127,9 +118,9 @@ async function main() {
 
   console.log("\n✨ 种子数据填充完成！");
   console.log("\n📋 默认账户信息：");
-  console.log("   管理员: admin / admin123");
-  console.log("   普通用户: user / user123");
-  console.log("   测试用户: test / test123");
+  console.log("   管理员: admin123 / admin123");
+  console.log("   普通用户: user123 / user123");
+  console.log("   测试用户: test123 / test123");
   console.log("\n⚠️  请在生产环境中修改默认密码！");
 }
 

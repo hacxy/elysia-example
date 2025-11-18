@@ -4,6 +4,7 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    seed: "bun run prisma:seed",
   },
   engine: "classic",
   datasource: {
