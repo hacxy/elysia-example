@@ -2,7 +2,7 @@ import { t, TSchema } from "elysia";
 import { ERROR, SUCCESS } from "@/constants/status-code";
 
 export const response = {
-  success: <T>(data?: T, message: string = "success") => {
+  success: <T>(data?: T, message: string = "ok") => {
     return {
       code: SUCCESS,
       data,
@@ -24,7 +24,7 @@ const baseResponseSchema = {
     description: "状态码",
   }),
   message: t.String({
-    default: "success",
+    default: "ok",
     description: "响应信息",
   }),
 };

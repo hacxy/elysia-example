@@ -1,4 +1,7 @@
 import { prisma } from "@/common/prisima";
+import { CommonError } from "../../common/errors";
+import { hashPassword } from "../../utils/password";
+import type { UserModel } from "./model";
 
 export const getUserByUsername = async (username: string) => {
   const user = await prisma.user.findUnique({
@@ -12,4 +15,24 @@ export const getUserByUsername = async (username: string) => {
 export const getUsers = async () => {
   const users = await prisma.user.findMany();
   return users;
+};
+
+export const createUser = async (data: UserModel.userCreateBody) => {
+  const { username, password, roleId } = data;
+  if (await getUserByUsername(username)) {
+    throw new CommonError(400, "用户已存在");
+  }
+  const hashedPassword = await hashPassword(password);
+  const user = await prisma.user.create({
+    data: {
+      username,
+      password: hashedPassword,
+      userRole: {
+        connect: {
+          id: roleId,
+        },
+      },
+    },
+  });
+  return user;
 };

@@ -23,7 +23,7 @@ auth.post(
   {
     tags: ["授权"],
     detail: {
-      summary: "用户注册",
+      summary: "注册",
       description: "用户注册接口",
     },
     body: AuthModel.AccountBody,
@@ -61,7 +61,7 @@ auth.post(
   {
     tags: ["授权"],
     detail: {
-      summary: "用户登录",
+      summary: "登录",
       description: "用户登录授权接口",
     },
     body: AuthModel.AccountBody,
