@@ -1,12 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `role` on the `elysia_user` table. All the data in the column will be lost.
-
-*/
--- AlterTable
-ALTER TABLE `elysia_user` DROP COLUMN `role`;
-
 -- CreateTable
 CREATE TABLE `elysia_role` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
@@ -16,6 +7,18 @@ CREATE TABLE `elysia_role` (
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `elysia_role_name_key`(`name`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `elysia_user` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `username` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `elysia_user_username_key`(`username`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

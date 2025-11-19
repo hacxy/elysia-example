@@ -51,8 +51,8 @@ const mariadbAdapter = new PrismaMariaDb({
   user: dbConfig.user,
   password: dbConfig.password,
   database: dbConfig.database,
-  connectionLimit: 10,
-  connectTimeout: dbConfig.connectionLimit,
+  connectionLimit: dbConfig.connectionLimit,
+  connectTimeout: 60000,
 });
 
 export default mariadbAdapter;

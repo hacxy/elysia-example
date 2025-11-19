@@ -37,7 +37,6 @@ bun install
 创建`.env`文件于项目根目录下
 
 ```
-# .env
 DATABASE_URL='mysql://username:password.@localhost:3306/elysia_example?connection_limit=10'
 JWT_SECRET='elysia.example.secret'
 ```

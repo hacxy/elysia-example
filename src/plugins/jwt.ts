@@ -2,6 +2,7 @@ import jwt from "@elysiajs/jwt";
 import Elysia, { t } from "elysia";
 import { ForbiddenError, UnauthorizedError } from "../common/errors";
 import { JWT_NAME } from "../constants";
+import { getUserById } from "../modules/user/service";
 
 /**
  * JWT Payload Schema 定义
@@ -41,7 +42,7 @@ export const requiredAuth = (app: Elysia) => {
 
     if (!accessToken) {
       // handle error for access token is not available
-      throw new UnauthorizedError("token缺失，禁止访问");
+      throw new UnauthorizedError();
     }
 
     // 使用 schema 后，verify 返回的类型会自动推断为 JwtPayload
@@ -49,21 +50,15 @@ export const requiredAuth = (app: Elysia) => {
     const jwtPayload = await jwt.verify(accessToken);
     if (!jwtPayload) {
       // handle error for access token is tempted or incorrect
-      throw new ForbiddenError("token已过期");
+      throw new ForbiddenError();
     }
 
-    // const userId = jwtPayload.id;
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     id: userId,
-    //   },
-    // });
+    const userId = jwtPayload.id;
+    const user = await getUserById(userId);
 
-    // if (!user) {
-    //   // handle error for user not found from the provided access token
-    //   set.status = "Forbidden";
-    //   throw new Error("Access token is invalid");
-    // }
+    if (!user) {
+      throw new ForbiddenError();
+    }
 
     return {
       user: jwtPayload, // 类型已自动推断为 JwtPayload，无需断言

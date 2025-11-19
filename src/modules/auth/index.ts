@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { AuthModel } from "./model";
 import { response, responseSchema } from "@/utils/response";
 import { jwtPlugin } from "@/plugins/jwt";
-import { BusinessError } from "../../common/errors";
+import { BusinessError, UserExistsError } from "../../common/errors";
 import { createUser } from "./service";
 import { getUserByUsername } from "../user/service";
 import { verifyPassword } from "@/utils/password";
@@ -15,10 +15,10 @@ auth.post(
     const { username, password } = body;
 
     if (await getUserByUsername(username)) {
-      throw new BusinessError(400, "用户已存在");
+      throw new UserExistsError();
     }
     await createUser(username, password);
-    return response.success(null, "用户注册成功");
+    return response.success();
   },
   {
     tags: ["授权"],

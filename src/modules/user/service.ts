@@ -36,3 +36,12 @@ export const createUser = async (data: UserModel.userCreateBody) => {
   });
   return user;
 };
+
+export const getUserById = async (id: number) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+  return user;
+};
