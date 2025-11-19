@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { response, responseSchema } from "../../utils/response";
-import { requiredAuth } from "../../common/jwt";
+import { requiredAuth } from "../../plugins/jwt";
 import { createUser, getUsers } from "./service";
 import { UserPlain } from "../../generated/prismabox/User";
 import { UserModel } from "./model";

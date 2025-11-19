@@ -1,8 +1,8 @@
 import { Elysia } from "elysia";
 import { AuthModel } from "./model";
 import { response, responseSchema } from "@/utils/response";
-import { jwtPlugin } from "@/common/jwt";
-import { CommonError } from "../../common/errors";
+import { jwtPlugin } from "@/plugins/jwt";
+import { BusinessError } from "../../common/errors";
 import { createUser } from "./service";
 import { getUserByUsername } from "../user/service";
 import { verifyPassword } from "@/utils/password";
@@ -15,7 +15,7 @@ auth.post(
     const { username, password } = body;
 
     if (await getUserByUsername(username)) {
-      throw new CommonError(400, "用户已存在");
+      throw new BusinessError(400, "用户已存在");
     }
     await createUser(username, password);
     return response.success(null, "用户注册成功");
@@ -36,13 +36,13 @@ auth.post(
   async ({ jwt, body: { username, password } }) => {
     const user = await getUserByUsername(username);
     if (!user) {
-      throw new CommonError(400, "用户名或密码错误");
+      throw new BusinessError(400, "用户名或密码错误");
     }
 
     // 使用加密密码进行验证
     const isPasswordValid = await verifyPassword(password, user.password);
     if (!isPasswordValid) {
-      throw new CommonError(400, "用户名或密码错误");
+      throw new BusinessError(400, "用户名或密码错误");
     }
 
     const token = await jwt.sign({

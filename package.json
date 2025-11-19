@@ -15,11 +15,14 @@
     "prisma:reset": "bunx prisma migrate reset"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.4.0",
     "@elysiajs/jwt": "^1.4.0",
     "@elysiajs/openapi": "^1.4.11",
     "@prisma/adapter-mariadb": "^6.19.0",
     "@prisma/client": "^6.19.0",
     "elysia": "latest",
+    "elysia-http-exception": "^0.1.5",
+    "elysia-http-status-code": "^1.0.9",
     "elysia-ip": "^1.0.10",
     "logixlysia": "^5.3.0",
     "prisma-better-errors": "^1.0.4",

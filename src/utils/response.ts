@@ -1,15 +1,18 @@
 import { t, TSchema } from "elysia";
-import { ERROR, SUCCESS } from "@/constants/status-code";
+import { HttpStatusEnum } from "elysia-http-status-code/status";
 
 export const response = {
   success: <T>(data?: T, message: string = "ok") => {
     return {
-      code: SUCCESS,
+      code: HttpStatusEnum.HTTP_200_OK,
       data,
       message,
     };
   },
-  error: (code: number = ERROR, message: string) => {
+  error: (
+    code: number = HttpStatusEnum.HTTP_500_INTERNAL_SERVER_ERROR,
+    message: string
+  ) => {
     return {
       code,
       message,
@@ -20,7 +23,7 @@ export const response = {
 // 基础响应结构定义
 const baseResponseSchema = {
   code: t.Number({
-    default: SUCCESS,
+    default: HttpStatusEnum.HTTP_200_OK,
     description: "状态码",
   }),
   message: t.String({

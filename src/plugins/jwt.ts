@@ -1,6 +1,7 @@
 import jwt from "@elysiajs/jwt";
 import Elysia, { t } from "elysia";
-import { ForbiddenError, UnauthorizedError } from "./errors";
+import { ForbiddenError, UnauthorizedError } from "../common/errors";
+import { JWT_NAME } from "../constants";
 
 /**
  * JWT Payload Schema 定义
@@ -23,7 +24,7 @@ export const JwtPayloadSchema = t.Object({
 export const jwtPlugin = (app: Elysia) =>
   app.use(
     jwt({
-      name: "jwt",
+      name: JWT_NAME,
       secret: process.env.JWT_SECRET!,
       schema: JwtPayloadSchema, // 使用 schema 定义类型，无需类型断言
     })
