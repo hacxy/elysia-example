@@ -56,6 +56,15 @@ export const app = new Elysia({ name: "elysia-example" })
   .use(
     openapi({
       documentation: {
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+          },
+        },
         tags: [
           {
             name: "授权",

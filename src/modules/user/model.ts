@@ -20,7 +20,7 @@ export namespace UserModel {
   export const userCreateBody = t.Object({
     username: usernameSchema,
     password: passwordSchema,
-    roleId: t.Integer(),
+    roleId: t.Number(),
   });
 
   export type userCreateBody = typeof userCreateBody.static;

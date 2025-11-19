@@ -29,8 +29,13 @@ export const jwtPlugin = (app: Elysia) =>
     })
   );
 
-export const requiredAuth = (app: Elysia) =>
-  app.use(jwtPlugin).derive(async ({ jwt, headers, set }) => {
+export const requiredAuth = (app: Elysia) => {
+  app.config.detail = {
+    ...app.config.detail,
+    security: [...(app.config.detail?.security || []), { bearerAuth: [] }],
+  };
+
+  return app.use(jwtPlugin).derive(async ({ jwt, headers, set }) => {
     const accessToken = headers.authorization?.split(" ")[1];
 
     if (!accessToken) {
@@ -63,3 +68,4 @@ export const requiredAuth = (app: Elysia) =>
       user: jwtPayload, // 类型已自动推断为 JwtPayload，无需断言
     };
   });
+};
