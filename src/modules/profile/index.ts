@@ -2,7 +2,14 @@ import Elysia, { t } from "elysia";
 import { requiredAuth } from "../../plugins/jwt";
 import { getUserById } from "../user/service";
 import { response, responseSchema } from "../../utils/response";
-import { User } from "../../generated/prismabox/User";
+import {
+  User,
+  UserPlain,
+  UserPlainInputCreate,
+} from "../../generated/prismabox/User";
+import { ProfileModel } from "./model";
+import { updateProfile } from "./service";
+import { UserRolePlain } from "../../generated/prismabox/UserRole";
 
 const profile = new Elysia({
   prefix: "/profile",
@@ -20,10 +27,26 @@ profile.get(
   },
   {
     detail: {
-      summary: "个人信息",
+      summary: "获取个人信息",
       description: "获取当前用户个人信息",
     },
-    response: responseSchema(t.Omit(User, ["password"])),
+    response: responseSchema(ProfileModel.updateUserResponse),
+  }
+);
+
+profile.post(
+  "/update",
+  async ({ body, user }) => {
+    await updateProfile(user.id, body);
+    return response.success();
+  },
+  {
+    detail: {
+      summary: "更新个人信息",
+      description: "更新当前用户个人信息",
+    },
+    body: ProfileModel.updateUserBody,
+    response: responseSchema(),
   }
 );
 

@@ -1,6 +1,7 @@
 import { prisma } from "@/common/prisima";
 import { BusinessError, UserExistsError } from "../../common/errors";
 import { hashPassword } from "../../utils/password";
+import { flattenRelation } from "../../utils/prisma";
 import type { UserModel } from "./model";
 
 export const getUserByUsername = async (username: string) => {
@@ -43,8 +44,20 @@ export const getUserById = async (id: number) => {
       id,
     },
     include: {
-      userRole: true,
+      userRole: {
+        select: {
+          role: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+            },
+          },
+        },
+      },
     },
   });
-  return user;
+
+  // 将 userRole.role 提升到第一层为 role
+  return flattenRelation(user, ["userRole", "role"], "role");
 };

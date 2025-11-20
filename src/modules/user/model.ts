@@ -20,9 +20,27 @@ export namespace UserModel {
     error: throwValidationError("密码只能包含字母、数字和下划线，长度为6-12位"),
   });
 
+  export const emailSchema = t.Optional(
+    t.String({
+      error: throwValidationError("邮箱格式不正确"),
+      description: "邮箱",
+      pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+    })
+  );
+
+  export const phoneSchema = t.Optional(
+    t.String({
+      error: throwValidationError("手机号格式不正确"),
+      pattern: "^1[3-9]\d{9}$",
+      description: "手机号",
+    })
+  );
+
   export const userCreateBody = t.Object({
     username: usernameSchema,
     password: passwordSchema,
+    email: emailSchema,
+    phone: phoneSchema,
     roleId: t.Number(),
   });
 
