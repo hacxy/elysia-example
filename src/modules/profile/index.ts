@@ -1,8 +1,8 @@
 import Elysia, { t } from "elysia";
 import { requiredAuth } from "../../plugins/jwt";
-import { getUserByUsername } from "../user/service";
+import { getUserById } from "../user/service";
 import { response, responseSchema } from "../../utils/response";
-import { UserPlain } from "../../generated/prismabox/User";
+import { User } from "../../generated/prismabox/User";
 
 const profile = new Elysia({
   prefix: "/profile",
@@ -12,10 +12,10 @@ const profile = new Elysia({
 }).use(requiredAuth);
 
 profile.get(
-  "",
+  "/info",
   async (context) => {
     const { user } = context;
-    const userInfo = await getUserByUsername(user.username);
+    const userInfo = await getUserById(user.id);
     return response.success(userInfo);
   },
   {
@@ -23,7 +23,7 @@ profile.get(
       summary: "个人信息",
       description: "获取当前用户个人信息",
     },
-    response: responseSchema(t.Omit(UserPlain, ["password"])),
+    response: responseSchema(t.Omit(User, ["password"])),
   }
 );
 

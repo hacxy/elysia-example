@@ -1,5 +1,5 @@
 import { prisma } from "@/common/prisima";
-import { BusinessError } from "../../common/errors";
+import { BusinessError, UserExistsError } from "../../common/errors";
 import { hashPassword } from "../../utils/password";
 import type { UserModel } from "./model";
 
@@ -20,7 +20,7 @@ export const getUsers = async () => {
 export const createUser = async (data: UserModel.userCreateBody) => {
   const { username, password, roleId } = data;
   if (await getUserByUsername(username)) {
-    throw new BusinessError(400, "用户已存在");
+    throw new UserExistsError();
   }
   const hashedPassword = await hashPassword(password);
   const user = await prisma.user.create({
@@ -41,6 +41,9 @@ export const getUserById = async (id: number) => {
   const user = await prisma.user.findUnique({
     where: {
       id,
+    },
+    include: {
+      userRole: true,
     },
   });
   return user;
