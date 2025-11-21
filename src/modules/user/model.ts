@@ -1,5 +1,6 @@
 import { t } from "elysia";
 import { throwValidationError } from "@/common/errors";
+import { paginationQuerySchema } from "../../common/schema";
 
 export namespace UserModel {
   export const usernameSchema = t.String({
@@ -44,5 +45,15 @@ export namespace UserModel {
     roleId: t.Number(),
   });
 
+  export const userListQuery = paginationQuerySchema({
+    username: t.Optional(
+      t.String({
+        examples: "admin123",
+        description: "用户名",
+      })
+    ),
+  });
+
+  export type userListQuery = typeof userListQuery.static;
   export type userCreateBody = typeof userCreateBody.static;
 }

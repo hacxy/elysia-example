@@ -13,9 +13,40 @@ export const getUserByUsername = async (username: string) => {
   return user;
 };
 
-export const getUsers = async () => {
-  const users = await prisma.user.findMany();
-  return users;
+export const getUsers = async (query: UserModel.userListQuery) => {
+  const { page = 1, pageSize = 10, username } = query;
+  console.log(query);
+  const users = await prisma.user.findMany({
+    where: {
+      username: {
+        contains: username,
+      },
+    },
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    include: {
+      userRole: {
+        select: {
+          role: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  const finalUsers = users.map((user) => {
+    const { userRole, ...userData } = user;
+    return {
+      ...userData,
+      role: userRole?.role,
+    };
+  });
+  console.log(finalUsers);
+  return finalUsers;
 };
 
 export const createUser = async (data: UserModel.userCreateBody) => {

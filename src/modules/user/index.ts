@@ -4,6 +4,8 @@ import { requiredAuth } from "../../plugins/jwt";
 import { createUser, getUsers } from "./service";
 import { UserPlain } from "../../generated/prismabox/User";
 import { UserModel } from "./model";
+import { paginationQuerySchema } from "../../common/schema";
+import { ProfileModel } from "../profile/model";
 
 const user = new Elysia({
   prefix: "user",
@@ -14,16 +16,19 @@ const user = new Elysia({
 
 user.get(
   "/list",
-  async () => {
-    const users = await getUsers();
+  async ({ query }) => {
+    const users = await getUsers(query);
+
     return response.success(users);
   },
   {
+    query: UserModel.userListQuery,
+
     detail: {
       summary: "用户列表",
       description: "获取所有用户列表",
     },
-    response: responseSchema(t.Array(t.Omit(UserPlain, ["password"]))),
+    response: responseSchema(t.Array(ProfileModel.updateUserResponse)),
   }
 );
 

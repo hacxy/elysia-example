@@ -2,14 +2,8 @@ import Elysia, { t } from "elysia";
 import { requiredAuth } from "../../plugins/jwt";
 import { getUserById } from "../user/service";
 import { response, responseSchema } from "../../utils/response";
-import {
-  User,
-  UserPlain,
-  UserPlainInputCreate,
-} from "../../generated/prismabox/User";
 import { ProfileModel } from "./model";
 import { updateProfile } from "./service";
-import { UserRolePlain } from "../../generated/prismabox/UserRole";
 
 const profile = new Elysia({
   prefix: "/profile",
